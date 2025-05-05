@@ -1,15 +1,17 @@
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MapPin } from "lucide-react";
 import Layout from "@/components/layout/Layout";
-import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { signUp, user, loading } = useAuth();
+  
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -17,7 +19,12 @@ const RegisterPage = () => {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // If user is already logged in, redirect to home
+  if (!loading && user) {
+    return <Navigate to="/" />;
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -67,28 +74,28 @@ const RegisterPage = () => {
       return;
     }
     
-    setIsLoading(true);
+    setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
-      // Log the registration data (in a real app, this would be sent to an API)
-      console.log("Registration data:", {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      });
-      
-      toast.success("Registration successful! Please log in.");
+      await signUp(formData.email, formData.password, formData.name);
       navigate("/login");
     } catch (error) {
       console.error("Registration error:", error);
-      toast.error("Registration failed. Please try again.");
+      // Error is handled in the signUp function
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -101,7 +108,7 @@ const RegisterPage = () => {
           </div>
           <h1 className="text-2xl font-bold">Create an Account</h1>
           <p className="text-muted-foreground mt-2">
-            Join NearbyEssentials to discover and save your favorite places
+            Join SpotEase to discover and save your favorite places
           </p>
         </div>
 
@@ -115,7 +122,6 @@ const RegisterPage = () => {
                 placeholder="Enter your full name"
                 value={formData.name}
                 onChange={handleChange}
-                error={errors.name}
                 className={errors.name ? "border-destructive" : ""}
               />
               {errors.name && (
@@ -132,7 +138,6 @@ const RegisterPage = () => {
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
-                error={errors.email}
                 className={errors.email ? "border-destructive" : ""}
               />
               {errors.email && (
@@ -149,7 +154,6 @@ const RegisterPage = () => {
                 placeholder="Create a password"
                 value={formData.password}
                 onChange={handleChange}
-                error={errors.password}
                 className={errors.password ? "border-destructive" : ""}
               />
               {errors.password && (
@@ -166,7 +170,6 @@ const RegisterPage = () => {
                 placeholder="Confirm your password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                error={errors.confirmPassword}
                 className={errors.confirmPassword ? "border-destructive" : ""}
               />
               {errors.confirmPassword && (
@@ -174,8 +177,8 @@ const RegisterPage = () => {
               )}
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Creating Account..." : "Create Account"}
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? "Creating Account..." : "Create Account"}
             </Button>
           </form>
 

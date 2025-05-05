@@ -1,21 +1,28 @@
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MapPin } from "lucide-react";
 import Layout from "@/components/layout/Layout";
-import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { signIn, user, loading } = useAuth();
+  
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // If user is already logged in, redirect to home
+  if (!loading && user) {
+    return <Navigate to="/" />;
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -36,6 +43,8 @@ const LoginPage = () => {
     
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid";
     }
     
     if (!formData.password) {
@@ -53,27 +62,28 @@ const LoginPage = () => {
       return;
     }
     
-    setIsLoading(true);
+    setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
-      // Log the login data (in a real app, this would be sent to an API)
-      console.log("Login data:", {
-        email: formData.email,
-        password: formData.password,
-      });
-      
-      toast.success("Login successful!");
-      navigate("/dashboard");
+      await signIn(formData.email, formData.password);
+      navigate("/");
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("Login failed. Please check your credentials.");
+      // Error is handled in the signIn function
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -84,9 +94,9 @@ const LoginPage = () => {
               <MapPin className="h-6 w-6 text-primary" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold">Log In to Your Account</h1>
+          <h1 className="text-2xl font-bold">Welcome Back</h1>
           <p className="text-muted-foreground mt-2">
-            Welcome back to NearbyEssentials
+            Sign in to your SpotEase account
           </p>
         </div>
 
@@ -101,7 +111,6 @@ const LoginPage = () => {
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
-                error={errors.email}
                 className={errors.email ? "border-destructive" : ""}
               />
               {errors.email && (
@@ -110,7 +119,12 @@ const LoginPage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex justify-between">
+                <Label htmlFor="password">Password</Label>
+                <Link to="#" className="text-sm text-primary hover:underline">
+                  Forgot Password?
+                </Link>
+              </div>
               <Input
                 id="password"
                 name="password"
@@ -118,7 +132,6 @@ const LoginPage = () => {
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
-                error={errors.password}
                 className={errors.password ? "border-destructive" : ""}
               />
               {errors.password && (
@@ -126,27 +139,8 @@ const LoginPage = () => {
               )}
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="remember"
-                  className="rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <Label htmlFor="remember" className="text-sm font-normal">
-                  Remember me
-                </Label>
-              </div>
-              <Link
-                to="/forgot-password"
-                className="text-sm text-primary hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div>
-
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Logging in..." : "Log In"}
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? "Signing in..." : "Sign In"}
             </Button>
           </form>
 
@@ -154,7 +148,7 @@ const LoginPage = () => {
             <p className="text-muted-foreground">
               Don't have an account?{" "}
               <Link to="/register" className="text-primary font-medium">
-                Sign Up
+                Create Account
               </Link>
             </p>
           </div>

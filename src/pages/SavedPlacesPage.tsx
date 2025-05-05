@@ -3,99 +3,106 @@ import { useState, useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import PlaceCard, { Place } from "@/components/search/PlaceCard";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-
-// Mock data for saved places
-const mockSavedPlaces: Place[] = [
-  {
-    id: "1",
-    name: "Grand Plaza Hotel",
-    category: "Hotel",
-    address: "123 Main Street, New York, NY",
-    rating: 4.8,
-    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: "2",
-    name: "City General Hospital",
-    category: "Hospital",
-    address: "456 Health Avenue, New York, NY",
-    rating: 4.5,
-    image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: "3",
-    name: "Italiano Restaurant",
-    category: "Restaurant",
-    address: "789 Taste Street, New York, NY",
-    rating: 4.7,
-    image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: "4",
-    name: "Central Pharmacy",
-    category: "Pharmacy",
-    address: "101 Health Lane, New York, NY",
-    rating: 4.6,
-    image: "https://images.unsplash.com/photo-1575991473588-5b5c39174df3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-];
+import { Link, Navigate } from "react-router-dom";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 const SavedPlacesPage = () => {
   const [savedPlaces, setSavedPlaces] = useState<Place[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchSavedPlaces = async () => {
+      if (!user) return;
+      
       setIsLoading(true);
       try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        
-        // In a real app, you would fetch saved places from an API
-        setSavedPlaces(mockSavedPlaces);
+        // Fetch saved places with their details
+        const { data: savedPlacesData, error: savedPlacesError } = await supabase
+          .from('saved_places')
+          .select('place_id')
+          .eq('user_id', user.id);
+
+        if (savedPlacesError) throw savedPlacesError;
+
+        if (savedPlacesData && savedPlacesData.length > 0) {
+          // Extract place IDs
+          const placeIds = savedPlacesData.map(item => item.place_id);
+          
+          // Fetch place details for saved places
+          const { data: placesData, error: placesError } = await supabase
+            .from('places')
+            .select('*')
+            .in('id', placeIds);
+
+          if (placesError) throw placesError;
+
+          // Transform the data to match our Place type
+          const formattedPlaces: Place[] = placesData.map(place => ({
+            id: place.id,
+            name: place.name,
+            category: place.category,
+            address: place.address,
+            rating: place.rating,
+            image: place.image_url,
+            description: place.description,
+            phone: place.phone,
+            website: place.website,
+            hours: place.hours
+          }));
+          
+          setSavedPlaces(formattedPlaces);
+        } else {
+          setSavedPlaces([]);
+        }
       } catch (error) {
         console.error("Error fetching saved places:", error);
+        toast.error("Failed to fetch saved places");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchSavedPlaces();
-  }, []);
+  }, [user]);
 
   return (
     <Layout>
-      <div className="container py-10">
-        <div className="mb-8">
-          <h1 className="text-3xl font-semibold mb-2">Saved Places</h1>
-          <p className="text-muted-foreground">
-            Your bookmarked locations for quick access
-          </p>
-        </div>
-
-        {isLoading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          </div>
-        ) : savedPlaces.length === 0 ? (
-          <div className="bg-white border rounded-lg p-12 text-center">
-            <h2 className="text-xl font-semibold mb-2">No saved places</h2>
-            <p className="text-muted-foreground mb-6">
-              You haven't saved any places yet. Start exploring to add places to your favorites!
+      <ProtectedRoute>
+        <div className="container py-10">
+          <div className="mb-8">
+            <h1 className="text-3xl font-semibold mb-2">Saved Places</h1>
+            <p className="text-muted-foreground">
+              Your bookmarked locations for quick access
             </p>
-            <Button asChild>
-              <Link to="/search">Start Exploring</Link>
-            </Button>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {savedPlaces.map((place) => (
-              <PlaceCard key={place.id} place={place} />
-            ))}
-          </div>
-        )}
-      </div>
+
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : savedPlaces.length === 0 ? (
+            <div className="bg-white border rounded-lg p-12 text-center">
+              <h2 className="text-xl font-semibold mb-2">No saved places</h2>
+              <p className="text-muted-foreground mb-6">
+                You haven't saved any places yet. Start exploring to add places to your favorites!
+              </p>
+              <Button asChild>
+                <Link to="/search">Start Exploring</Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {savedPlaces.map((place) => (
+                <PlaceCard key={place.id} place={place} />
+              ))}
+            </div>
+          )}
+        </div>
+      </ProtectedRoute>
     </Layout>
   );
 };
