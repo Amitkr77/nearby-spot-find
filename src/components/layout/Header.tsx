@@ -19,7 +19,7 @@ const Header = () => {
       <div className="container flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <MapPin className="h-6 w-6 text-primary" />
-          <span className="font-bold text-xl">NearbyEssentials</span>
+          <span className="font-bold text-xl">SpotEase</span>
         </Link>
 
         <nav className="hidden md:flex items-center space-x-6">
@@ -31,6 +31,9 @@ const Header = () => {
           </Link>
           <Link to="/about" className="text-foreground hover:text-primary transition-colors">
             About
+          </Link>
+          <Link to="/contact" className="text-foreground hover:text-primary transition-colors">
+            Contact
           </Link>
         </nav>
 

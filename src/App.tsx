@@ -13,6 +13,10 @@ import DashboardPage from "./pages/DashboardPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import PlaceDetailsPage from "./pages/PlaceDetailsPage";
 import SavedPlacesPage from "./pages/SavedPlacesPage";
+import AboutPage from "./pages/AboutPage";
+import ContactPage from "./pages/ContactPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import TermsPage from "./pages/TermsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 const queryClient = new QueryClient();
@@ -31,6 +35,10 @@ const App = () => (
           <Route path="/search" element={<SearchResultsPage />} />
           <Route path="/place/:placeId" element={<PlaceDetailsPage />} />
           <Route path="/saved" element={<SavedPlacesPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
