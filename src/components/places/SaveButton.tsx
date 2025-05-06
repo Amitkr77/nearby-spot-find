@@ -71,12 +71,12 @@ const SaveButton = ({
           const updatedPlaces = savedPlaces.filter((id: string) => id !== placeId);
           localStorage.setItem(savedPlacesKey, JSON.stringify(updatedPlaces));
           setSaved(false);
-          setTimeout(() => toast.success("Place removed from saved places"), 100);
+          toast.success("Place removed from saved places");
         } else {
           savedPlaces.push(placeId);
           localStorage.setItem(savedPlacesKey, JSON.stringify(savedPlaces));
           setSaved(true);
-          setTimeout(() => toast.success("Place saved successfully!"), 100);
+          toast.success("Place saved successfully!");
         }
         setLoading(false);
         return;
@@ -84,14 +84,17 @@ const SaveButton = ({
       
       // For real data, use the database
       if (saved) {
-        const success = await unsavePlace(user.id, placeId);
-        if (success) setSaved(false);
+        await unsavePlace(user.id, placeId);
+        setSaved(false);
+        toast.success("Place removed from saved places");
       } else {
-        const success = await savePlace(user.id, placeId);
-        if (success) setSaved(true);
+        await savePlace(user.id, placeId);
+        setSaved(true);
+        toast.success("Place saved successfully!");
       }
     } catch (error) {
       console.error("Error toggling save:", error);
+      toast.error("Failed to update saved status");
     } finally {
       setLoading(false);
     }

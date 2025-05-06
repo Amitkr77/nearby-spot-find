@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
+import { getPlaceById } from "@/services/placeService";
 
 const SavedPlacesPage = () => {
   const [savedPlaces, setSavedPlaces] = useState<Place[]>([]);
@@ -19,7 +20,32 @@ const SavedPlacesPage = () => {
       
       setIsLoading(true);
       try {
-        // Fetch saved places with their details
+        // First, handle localStorage saved places (for non-UUID mock data)
+        const savedPlacesLocalKey = `savedPlaces_${user.id}`;
+        const localSavedPlaces = JSON.parse(localStorage.getItem(savedPlacesLocalKey) || '[]');
+        
+        // Fetch local saved places details
+        const localPlacesData: Place[] = [];
+        for (const placeId of localSavedPlaces) {
+          try {
+            const placeData = await getPlaceById(placeId);
+            if (placeData) {
+              localPlacesData.push({
+                id: placeData.id,
+                name: placeData.name,
+                category: placeData.category,
+                address: placeData.address,
+                rating: placeData.rating || 0,
+                image: placeData.image_url || '',
+                description: placeData.description,
+              });
+            }
+          } catch (error) {
+            console.error(`Error fetching local place ${placeId}:`, error);
+          }
+        }
+
+        // Then fetch database saved places
         const { data: savedPlacesData, error: savedPlacesError } = await supabase
           .from('saved_places')
           .select('place_id')
@@ -27,6 +53,7 @@ const SavedPlacesPage = () => {
 
         if (savedPlacesError) throw savedPlacesError;
 
+        let dbPlacesData: Place[] = [];
         if (savedPlacesData && savedPlacesData.length > 0) {
           // Extract place IDs
           const placeIds = savedPlacesData.map(item => item.place_id);
@@ -40,23 +67,22 @@ const SavedPlacesPage = () => {
           if (placesError) throw placesError;
 
           // Transform the data to match our Place type
-          const formattedPlaces: Place[] = placesData.map(place => ({
+          dbPlacesData = placesData.map(place => ({
             id: place.id,
             name: place.name,
             category: place.category,
             address: place.address,
-            rating: place.rating,
-            image: place.image_url,
+            rating: place.rating || 0,
+            image: place.image_url || '',
             description: place.description,
             phone: place.phone,
             website: place.website,
             hours: place.hours
           }));
-          
-          setSavedPlaces(formattedPlaces);
-        } else {
-          setSavedPlaces([]);
         }
+        
+        // Combine both local and database saved places
+        setSavedPlaces([...localPlacesData, ...dbPlacesData]);
       } catch (error) {
         console.error("Error fetching saved places:", error);
         toast.error("Failed to fetch saved places");

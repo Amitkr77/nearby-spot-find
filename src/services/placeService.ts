@@ -43,15 +43,19 @@ export const getPlaceById = async (placeId: string): Promise<PlaceData | null> =
   try {
     // Handle non-UUID IDs (for mock data)
     if (!placeId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
-      // For mock data - return a fallback mock place
+      // For mock data - return a fallback mock place based on ID
       return {
         id: placeId,
-        name: "Grand Plaza Hotel",
-        category: "Hotel",
-        address: "123 Main Street, New York, NY",
-        rating: 4.8,
-        image_url: "https://images.unsplash.com/photo-1566073771259-6a8506099945",
-        description: "Located in the heart of the city, Grand Plaza Hotel offers luxurious rooms with stunning views.",
+        name: placeId === "1" ? "Grand Plaza Hotel" : placeId === "2" ? "City General Hospital" : `Place ${placeId}`,
+        category: placeId === "1" ? "Hotel" : placeId === "2" ? "Hospital" : "Place",
+        address: `${placeId === "1" ? "123 Main Street" : placeId === "2" ? "456 Health Avenue" : `${placeId} Some Street`}, New York, NY`,
+        rating: 4.5,
+        image_url: placeId === "1" 
+          ? "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
+          : placeId === "2" 
+          ? "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+          : "https://images.unsplash.com/photo-1577791465485-b80039b4d69a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        description: `Description for place ${placeId}`,
         phone: "+1 (555) 123-4567",
         website: "https://example.com",
         hours: "24 hours",
@@ -80,8 +84,13 @@ export const savePlace = async (userId: string, placeId: string): Promise<boolea
   try {
     // Handle non-UUID IDs (for mock data)
     if (!placeId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
-      // For mock data, pretend to succeed but notify
-      toast.success("Place saved successfully in demo mode!");
+      // For mock data, save to localStorage
+      const savedPlacesKey = `savedPlaces_${userId}`;
+      const savedPlaces = JSON.parse(localStorage.getItem(savedPlacesKey) || '[]');
+      if (!savedPlaces.includes(placeId)) {
+        savedPlaces.push(placeId);
+        localStorage.setItem(savedPlacesKey, JSON.stringify(savedPlaces));
+      }
       return true;
     }
     
@@ -96,8 +105,6 @@ export const savePlace = async (userId: string, placeId: string): Promise<boolea
       } else {
         throw error;
       }
-    } else {
-      toast.success("Place saved successfully!");
     }
     return !error;
   } catch (error) {
@@ -111,8 +118,11 @@ export const unsavePlace = async (userId: string, placeId: string): Promise<bool
   try {
     // Handle non-UUID IDs (for mock data)
     if (!placeId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
-      // For mock data, pretend to succeed but notify
-      toast.success("Place removed from saved places in demo mode");
+      // For mock data, remove from localStorage
+      const savedPlacesKey = `savedPlaces_${userId}`;
+      const savedPlaces = JSON.parse(localStorage.getItem(savedPlacesKey) || '[]');
+      const updatedPlaces = savedPlaces.filter((id: string) => id !== placeId);
+      localStorage.setItem(savedPlacesKey, JSON.stringify(updatedPlaces));
       return true;
     }
     
@@ -122,7 +132,6 @@ export const unsavePlace = async (userId: string, placeId: string): Promise<bool
       .match({ user_id: userId, place_id: placeId });
 
     if (error) throw error;
-    toast.success("Place removed from saved places");
     return true;
   } catch (error) {
     console.error("Error removing saved place:", error);
@@ -135,8 +144,9 @@ export const isPlaceSaved = async (userId: string, placeId: string): Promise<boo
   try {
     // Handle non-UUID IDs (for mock data)
     if (!placeId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
-      // For mock data, return false by default
-      return false;
+      // For mock data, check localStorage
+      const savedPlaces = JSON.parse(localStorage.getItem(`savedPlaces_${userId}`) || '[]');
+      return savedPlaces.includes(placeId);
     }
     
     const { data, error } = await supabase
