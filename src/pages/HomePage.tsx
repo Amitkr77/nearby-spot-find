@@ -6,8 +6,11 @@ import SearchBar from "@/components/search/SearchBar";
 import CategoryCard from "@/components/search/CategoryCard";
 import { Button } from "@/components/ui/button";
 import { MapPin, Search, Hotel, Utensils, Building, Pill, ShoppingBag, CreditCard } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 const HomePage = () => {
+  const { user } = useAuth();
+  
   const categories = [
     {
       title: "Hotels",
@@ -84,7 +87,7 @@ const HomePage = () => {
       <section className="bg-gray-50 py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-semibold mb-10 text-center">
-            Why Choose NearbyEssentials?
+            Why Choose SpotEase?
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-sm border">
@@ -136,21 +139,44 @@ const HomePage = () => {
         <div className="container mx-auto px-4">
           <div className="bg-primary text-white rounded-lg p-8 text-center">
             <h2 className="text-3xl font-bold mb-4">Ready to explore?</h2>
-            <p className="text-xl mb-8 max-w-2xl mx-auto">
-              Create an account to save your favorite places and get personalized recommendations.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/register">
-                <Button size="lg" variant="secondary">
-                  Sign Up Now
-                </Button>
-              </Link>
-              <Link to="/search">
-                <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white/10">
-                  Start Searching
-                </Button>
-              </Link>
-            </div>
+            
+            {user ? (
+              <>
+                <p className="text-xl mb-8 max-w-2xl mx-auto">
+                  Find and save your favorite places for quick access in the future.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link to="/dashboard">
+                    <Button size="lg" variant="secondary">
+                      My Dashboard
+                    </Button>
+                  </Link>
+                  <Link to="/search">
+                    <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white/10">
+                      Explore Places
+                    </Button>
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-xl mb-8 max-w-2xl mx-auto">
+                  Create an account to save your favorite places and get personalized recommendations.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link to="/register">
+                    <Button size="lg" variant="secondary">
+                      Sign Up Now
+                    </Button>
+                  </Link>
+                  <Link to="/search">
+                    <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white/10">
+                      Start Searching
+                    </Button>
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>

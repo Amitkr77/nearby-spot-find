@@ -23,7 +23,7 @@ const ProtectedRoute = ({
   }
 
   if (!user) {
-    return <Navigate to={redirectTo} />;
+    return <Navigate to={redirectTo} replace />;
   }
 
   return <>{children}</>;

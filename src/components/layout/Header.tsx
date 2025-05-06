@@ -1,17 +1,42 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MapPin } from "lucide-react";
+import { MapPin, User, LogOut } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Header = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
-  // Placeholder for actual auth logic
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate("/");
+    } catch (error) {
+      console.error("Failed to log out:", error);
+    }
+  };
+
+  const getUserInitials = () => {
+    if (!user) return "U";
+    
+    // Try to get initials from email
+    const email = user.email || "";
+    if (email) {
+      return email[0].toUpperCase();
+    }
+    
+    return "U";
   };
 
   return (
@@ -38,17 +63,37 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center space-x-4">
-          {isLoggedIn ? (
+          {user ? (
             <>
-              <Button variant="ghost" onClick={() => navigate("/dashboard")}>
-                Dashboard
-              </Button>
               <Button variant="ghost" onClick={() => navigate("/saved")}>
                 Saved Places
               </Button>
-              <Button variant="outline" onClick={handleLogout}>
-                Logout
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar>
+                      <AvatarImage src={user.user_metadata?.avatar_url} />
+                      <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Dashboard</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/saved")}>
+                    Saved Places
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           ) : (
             <>
