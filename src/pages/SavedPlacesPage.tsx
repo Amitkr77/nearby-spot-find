@@ -3,11 +3,10 @@ import { useState, useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import PlaceCard, { Place } from "@/components/search/PlaceCard";
 import { Button } from "@/components/ui/button";
-import { Link, Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 const SavedPlacesPage = () => {
   const [savedPlaces, setSavedPlaces] = useState<Place[]>([]);
@@ -71,38 +70,38 @@ const SavedPlacesPage = () => {
 
   return (
     <Layout>
-      <ProtectedRoute>
-        <div className="container py-10">
-          <div className="mb-8">
-            <h1 className="text-3xl font-semibold mb-2">Saved Places</h1>
-            <p className="text-muted-foreground">
-              Your bookmarked locations for quick access
-            </p>
-          </div>
-
-          {isLoading ? (
-            <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-            </div>
-          ) : savedPlaces.length === 0 ? (
-            <div className="bg-white border rounded-lg p-12 text-center">
-              <h2 className="text-xl font-semibold mb-2">No saved places</h2>
-              <p className="text-muted-foreground mb-6">
-                You haven't saved any places yet. Start exploring to add places to your favorites!
-              </p>
-              <Button asChild>
-                <Link to="/search">Start Exploring</Link>
-              </Button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {savedPlaces.map((place) => (
-                <PlaceCard key={place.id} place={place} />
-              ))}
-            </div>
-          )}
+      <div className="container py-10 animate-fade-in">
+        <div className="mb-8">
+          <h1 className="text-3xl font-semibold mb-2 animate-slide-up">Saved Places</h1>
+          <p className="text-muted-foreground animate-slide-up" style={{animationDelay: "0.1s"}}>
+            Your bookmarked locations for quick access
+          </p>
         </div>
-      </ProtectedRoute>
+
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        ) : savedPlaces.length === 0 ? (
+          <div className="bg-white border rounded-lg p-12 text-center animate-scale-in">
+            <h2 className="text-xl font-semibold mb-2">No saved places</h2>
+            <p className="text-muted-foreground mb-6">
+              You haven't saved any places yet. Start exploring to add places to your favorites!
+            </p>
+            <Button asChild className="animate-pulse">
+              <Link to="/search">Start Exploring</Link>
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {savedPlaces.map((place, index) => (
+              <div key={place.id} className="animate-fade-in" style={{animationDelay: `${index * 0.1}s`}}>
+                <PlaceCard place={place} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </Layout>
   );
 };

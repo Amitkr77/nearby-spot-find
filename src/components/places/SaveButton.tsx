@@ -66,9 +66,9 @@ const SaveButton = ({
       size={size}
       disabled={loading}
       aria-label={saved ? "Remove from saved places" : "Save this place"}
-      className={saved ? "bg-rose-500 hover:bg-rose-600" : ""}
+      className={`${saved ? "bg-rose-500 hover:bg-rose-600" : ""} animate-fade-in transition-all`}
     >
-      <Heart className={`${saved ? "fill-white" : ""}`} size={18} />
+      <Heart className={`${saved ? "fill-white" : ""} mr-2 transition-all duration-300`} size={18} />
       <span>{saved ? "Saved" : "Save"}</span>
     </Button>
   );
