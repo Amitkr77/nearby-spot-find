@@ -13,13 +13,17 @@ const Layout = ({ children }: LayoutProps) => {
 
   // Scroll to top when location changes
   useEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "smooth"
+    });
   }, [location.pathname]);
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 animate-fade-in">{children}</main>
       <Footer />
     </div>
   );

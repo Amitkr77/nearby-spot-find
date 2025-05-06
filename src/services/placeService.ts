@@ -41,6 +41,26 @@ export const getPlaces = async (
 
 export const getPlaceById = async (placeId: string): Promise<PlaceData | null> => {
   try {
+    // Handle non-UUID IDs (for mock data)
+    if (!placeId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      // For mock data - return a fallback mock place
+      return {
+        id: placeId,
+        name: "Grand Plaza Hotel",
+        category: "Hotel",
+        address: "123 Main Street, New York, NY",
+        rating: 4.8,
+        image_url: "https://images.unsplash.com/photo-1566073771259-6a8506099945",
+        description: "Located in the heart of the city, Grand Plaza Hotel offers luxurious rooms with stunning views.",
+        phone: "+1 (555) 123-4567",
+        website: "https://example.com",
+        hours: "24 hours",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      } as PlaceData;
+    }
+
+    // For real Supabase data
     const { data, error } = await supabase
       .from("places")
       .select("*")
@@ -58,6 +78,13 @@ export const getPlaceById = async (placeId: string): Promise<PlaceData | null> =
 
 export const savePlace = async (userId: string, placeId: string): Promise<boolean> => {
   try {
+    // Handle non-UUID IDs (for mock data)
+    if (!placeId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      // For mock data, pretend to succeed but notify
+      toast.success("Place saved successfully in demo mode!");
+      return true;
+    }
+    
     const { error } = await supabase
       .from("saved_places")
       .insert({ user_id: userId, place_id: placeId });
@@ -82,6 +109,13 @@ export const savePlace = async (userId: string, placeId: string): Promise<boolea
 
 export const unsavePlace = async (userId: string, placeId: string): Promise<boolean> => {
   try {
+    // Handle non-UUID IDs (for mock data)
+    if (!placeId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      // For mock data, pretend to succeed but notify
+      toast.success("Place removed from saved places in demo mode");
+      return true;
+    }
+    
     const { error } = await supabase
       .from("saved_places")
       .delete()
@@ -99,6 +133,12 @@ export const unsavePlace = async (userId: string, placeId: string): Promise<bool
 
 export const isPlaceSaved = async (userId: string, placeId: string): Promise<boolean> => {
   try {
+    // Handle non-UUID IDs (for mock data)
+    if (!placeId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      // For mock data, return false by default
+      return false;
+    }
+    
     const { data, error } = await supabase
       .from("saved_places")
       .select("id")
