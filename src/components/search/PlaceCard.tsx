@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { MapPin, Star } from "lucide-react";
+import SaveButton from "@/components/places/SaveButton";
 
 export interface Place {
   id: string;
@@ -11,6 +12,7 @@ export interface Place {
   rating: number;
   image: string;
   distance?: string;
+  description?: string;
 }
 
 interface PlaceCardProps {
@@ -55,9 +57,7 @@ const PlaceCard = ({ place }: PlaceCardProps) => {
               View Details
             </Button>
           </Link>
-          <Button variant="ghost" size="sm">
-            Save
-          </Button>
+          <SaveButton placeId={place.id} variant="ghost" size="sm" />
         </div>
       </div>
     </div>
