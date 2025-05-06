@@ -31,7 +31,7 @@ export const getPlaces = async (
     const { data, error } = await queryBuilder;
 
     if (error) throw error;
-    return data || [];
+    return data as PlaceData[] || [];
   } catch (error) {
     console.error("Error fetching places:", error);
     toast.error("Failed to fetch places");
@@ -48,7 +48,7 @@ export const getPlaceById = async (placeId: string): Promise<PlaceData | null> =
       .single();
 
     if (error) throw error;
-    return data;
+    return data as PlaceData;
   } catch (error) {
     console.error(`Error fetching place with ID ${placeId}:`, error);
     toast.error("Failed to fetch place details");

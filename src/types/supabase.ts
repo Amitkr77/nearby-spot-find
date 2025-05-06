@@ -19,7 +19,7 @@ export interface PlaceData {
   description: string | null;
   phone: string | null;
   website: string | null;
-  hours: Record<string, string> | null;
+  hours: Record<string, string> | null | string | any; // Updated to handle Json type from Supabase
   created_at: string;
   updated_at: string;
 }
