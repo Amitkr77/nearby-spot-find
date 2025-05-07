@@ -19,10 +19,12 @@ const CategoryCard = ({
   return (
     <Link
       to={href}
-      className="block p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-all border"
+      className="block overflow-hidden group"
     >
-      <div className="flex flex-col items-center text-center">
-        <div className={cn("category-icon mb-4", color)}>{icon}</div>
+      <div className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border hover:-translate-y-1 flex flex-col items-center text-center">
+        <div className={cn("rounded-full mb-4 p-4 transition-colors", color, "group-hover:bg-primary group-hover:text-white")}>
+          {icon}
+        </div>
         <h3 className="font-medium">{title}</h3>
       </div>
     </Link>
