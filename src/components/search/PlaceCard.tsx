@@ -12,8 +12,12 @@ export interface Place {
   address: string;
   rating: number;
   image: string;
+  image_url?: string; // Added to match database fields
   distance?: string;
   description?: string;
+  phone?: string;
+  website?: string;
+  hours?: Record<string, string> | null | string | any;
 }
 
 interface PlaceCardProps {

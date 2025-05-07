@@ -1,4 +1,3 @@
-
 // This file contains mock data functions and simulates API calls
 
 import { Place } from "@/components/search/PlaceCard";
@@ -26,7 +25,22 @@ export const getPlaces = async (
         );
       }
       
-      resolve(places);
+      // Map to ensure consistency with Place interface
+      const mappedPlaces: Place[] = places.map(place => ({
+        id: place.id,
+        name: place.name,
+        category: place.category,
+        address: place.address,
+        rating: place.rating || 0,
+        image: place.image_url || place.image || '', // Handle both image and image_url
+        image_url: place.image_url || place.image || '', // Add image_url field
+        description: place.description || '',
+        phone: place.phone || '',
+        website: place.website || '',
+        hours: place.hours || null
+      }));
+      
+      resolve(mappedPlaces);
     }, 500); // Simulating a short delay
   });
 };
@@ -37,7 +51,27 @@ export const getPlace = async (id: string): Promise<Place | null> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       const place = getMockPlaceById(id);
-      resolve(place || null);
+      
+      if (place) {
+        // Ensure the returned object matches the Place interface
+        const mappedPlace: Place = {
+          id: place.id,
+          name: place.name,
+          category: place.category,
+          address: place.address,
+          rating: place.rating || 0,
+          image: place.image_url || place.image || '', // Handle both image and image_url
+          image_url: place.image_url || place.image || '', // Add image_url field
+          description: place.description || '',
+          phone: place.phone || '',
+          website: place.website || '',
+          hours: place.hours || null
+        };
+        
+        resolve(mappedPlace);
+      } else {
+        resolve(null);
+      }
     }, 300);
   });
 };

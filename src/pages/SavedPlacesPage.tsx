@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import PlaceCard, { Place } from "@/components/search/PlaceCard";
@@ -7,7 +6,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
-import { getPlace } from "@/services/placeService";
+import { getPlace, getSavedPlaces } from "@/services/placeService";
 
 const SavedPlacesPage = () => {
   const [savedPlaces, setSavedPlaces] = useState<Place[]>([]);
@@ -31,13 +30,9 @@ const SavedPlacesPage = () => {
             const placeData = await getPlace(placeId);
             if (placeData) {
               localPlacesData.push({
-                id: placeData.id,
-                name: placeData.name,
-                category: placeData.category,
-                address: placeData.address,
-                rating: placeData.rating || 0,
-                image: placeData.image_url || '',
-                description: placeData.description,
+                ...placeData,
+                // Ensure the image property is set from image_url or vice versa 
+                image: placeData.image || placeData.image_url || '',
               });
             }
           } catch (error) {
@@ -74,9 +69,10 @@ const SavedPlacesPage = () => {
             address: place.address,
             rating: place.rating || 0,
             image: place.image_url || '',
-            description: place.description,
-            phone: place.phone,
-            website: place.website,
+            image_url: place.image_url || '',
+            description: place.description || '',
+            phone: place.phone || '',
+            website: place.website || '',
             hours: place.hours
           }));
         }
