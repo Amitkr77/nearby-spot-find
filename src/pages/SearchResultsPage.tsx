@@ -6,64 +6,7 @@ import SearchBar from "@/components/search/SearchBar";
 import PlaceCard, { Place } from "@/components/search/PlaceCard";
 import MapView from "@/components/map/MapView";
 import { Button } from "@/components/ui/button";
-
-// Mock data for search results
-const mockPlaces: Place[] = [
-  {
-    id: "1",
-    name: "Grand Plaza Hotel",
-    category: "Hotel",
-    address: "123 Main Street, New York, NY",
-    rating: 4.8,
-    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    distance: "2.5 miles",
-  },
-  {
-    id: "2",
-    name: "City General Hospital",
-    category: "Hospital",
-    address: "456 Health Avenue, New York, NY",
-    rating: 4.5,
-    image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    distance: "3.2 miles",
-  },
-  {
-    id: "3",
-    name: "Italiano Restaurant",
-    category: "Restaurant",
-    address: "789 Taste Street, New York, NY",
-    rating: 4.7,
-    image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    distance: "1.8 miles",
-  },
-  {
-    id: "4",
-    name: "Central Pharmacy",
-    category: "Pharmacy",
-    address: "101 Health Lane, New York, NY",
-    rating: 4.6,
-    image: "https://images.unsplash.com/photo-1575991473588-5b5c39174df3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    distance: "2.1 miles",
-  },
-  {
-    id: "5",
-    name: "Downtown Shopping Mall",
-    category: "Shopping",
-    address: "202 Commerce Avenue, New York, NY",
-    rating: 4.4,
-    image: "https://images.unsplash.com/photo-1610513320995-1ad4bbf25e55?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    distance: "1.5 miles",
-  },
-  {
-    id: "6",
-    name: "Community Bank ATM",
-    category: "ATM",
-    address: "303 Finance Street, New York, NY",
-    rating: 4.2,
-    image: "https://images.unsplash.com/photo-1601597111158-2fceff292cdc?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    distance: "0.8 miles",
-  },
-];
+import { getPlaces } from "@/services/placeService";
 
 const SearchResultsPage = () => {
   const [searchParams] = useSearchParams();
@@ -77,30 +20,13 @@ const SearchResultsPage = () => {
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
 
   useEffect(() => {
-    // Simulate API call to fetch places based on search params
+    // Fetch places using our placeService
     const fetchPlaces = async () => {
       setIsLoading(true);
       try {
-        // In a real app, this would be an API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        
-        let filteredPlaces = [...mockPlaces];
-        
-        // Filter by category if provided
-        if (category) {
-          filteredPlaces = filteredPlaces.filter(place => 
-            place.category.toLowerCase() === category.toLowerCase()
-          );
-        }
-        
-        // Sort by distance (closest first)
-        filteredPlaces.sort((a, b) => {
-          const distA = parseFloat((a.distance || "0").split(" ")[0]);
-          const distB = parseFloat((b.distance || "0").split(" ")[0]);
-          return distA - distB;
-        });
-        
-        setPlaces(filteredPlaces);
+        // Use the placeService to get places by category and location
+        const fetchedPlaces = await getPlaces(category, location);
+        setPlaces(fetchedPlaces);
       } catch (error) {
         console.error("Error fetching places:", error);
       } finally {
