@@ -2,7 +2,7 @@
 // This file contains mock data functions and simulates API calls
 
 import { Place } from "@/components/search/PlaceCard";
-import { getPlaceById, getPlacesByCategory, getAllPlaces } from "@/data/mockPlaces";
+import { getPlaceById as getMockPlaceById, getPlacesByCategory, getAllPlaces } from "@/data/mockPlaces";
 
 // Get all places or filter by search criteria
 export const getPlaces = async (
@@ -36,7 +36,7 @@ export const getPlace = async (id: string): Promise<Place | null> => {
   // Simulate API call
   return new Promise((resolve) => {
     setTimeout(() => {
-      const place = getPlaceById(id);
+      const place = getMockPlaceById(id);
       resolve(place || null);
     }, 300);
   });

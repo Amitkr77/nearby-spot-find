@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
-import { getPlaceById } from "@/services/placeService";
+import { getPlace } from "@/services/placeService";
 
 const SavedPlacesPage = () => {
   const [savedPlaces, setSavedPlaces] = useState<Place[]>([]);
@@ -28,7 +28,7 @@ const SavedPlacesPage = () => {
         const localPlacesData: Place[] = [];
         for (const placeId of localSavedPlaces) {
           try {
-            const placeData = await getPlaceById(placeId);
+            const placeData = await getPlace(placeId);
             if (placeData) {
               localPlacesData.push({
                 id: placeData.id,

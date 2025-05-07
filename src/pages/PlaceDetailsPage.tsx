@@ -6,7 +6,7 @@ import MapView from "@/components/map/MapView";
 import { MapPin, Phone, Globe, Clock, Star, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import SaveButton from "@/components/places/SaveButton";
-import { getPlaceById } from "@/services/placeService";
+import { getPlace } from "@/services/placeService";
 
 // Mock data for place details
 const mockPlaceDetails = {
@@ -51,7 +51,7 @@ const PlaceDetailsPage = () => {
         }
         
         // Try to fetch real place data from Supabase
-        const placeData = await getPlaceById(placeId);
+        const placeData = await getPlace(placeId);
         
         if (placeData) {
           setPlace({
