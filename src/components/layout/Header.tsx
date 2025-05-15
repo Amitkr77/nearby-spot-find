@@ -83,7 +83,7 @@ const Header = () => {
           <div className="bg-primary rounded-full p-1.5">
             <MapPin className="h-5 w-5 text-white" />
           </div>
-          <span className="font-bold text-xl">SpotEase</span>
+          <span className="font-bold text-xl">Data Sales Portal</span>
         </Link>
 
         {/* Mobile menu button */}

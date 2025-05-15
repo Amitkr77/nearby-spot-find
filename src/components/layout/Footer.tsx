@@ -10,7 +10,7 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <MapPin className="h-6 w-6 text-primary" />
-              <span className="font-bold text-xl">SpotEase</span>
+              <span className="font-bold text-xl">Data Sales Portal</span>
             </div>
             <p className="text-muted-foreground">
               Find essential services around you with ease.
@@ -124,7 +124,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-12 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} SpotEase. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Data Sales Portal. All rights reserved.</p>
         </div>
       </div>
     </footer>
